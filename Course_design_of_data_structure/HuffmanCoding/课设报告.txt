@@ -1,0 +1,65 @@
+四、Huffman编码与解码(必做)（Huffman编码、二叉树）
+[问题描述]
+对一篇不少于2000字符的英文文章，统计各字符出现的次数，实现Huffman编码，以及对编码结果的解码。
+[基本要求]
+（1） 输出每个字符出现的次数和编码。
+（2） 在Huffman编码后，要将编码表和英文文章编码结果保存到文件中，编码结果必须是二进制形式，即0 1的信息用比特位表示，不能用字符’0’和’1’表示。
+（3） 提供读编码文件生成原文件的功能。
+2.采用的数据结构
+typedef struct Letter//存储字符的值，出现的数量，以及编码 
+{
+	char value;
+	int num;
+	char *code;
+	bool operator <(Letter l2)
+	{
+		if(num>l2.num) return true;
+		else return false;
+	}
+}Letter;
+typedef struct{
+	unsigned int weight;
+	unsigned int parent,lchild,rchild;
+}HTNode,*HuffmanTree;
+
+typedef char **HuffmanCode;
+
+
+//int letter[256];//记录有效的，即存在的，个数非零的字符的位置 
+int letterNum;
+int asc[256];//a-z, 
+int locate[256];//字符c的位置存在了letterlist【locate【c】】。该数组用来记录字符存在编码表的位置 
+Letter letterlist[256];//编码表 
+
+queue<char>compressCode;//存储压缩完成后的所有压缩字符 
+queue<char>rcode;//
+
+3.算法思想
+
+生成编码表：
+首先通过asc[256]数组直接统计所有字符出现的次数，然后筛选掉那些次数为0的，其余的那些直接按次序存到编码表中，然后通过哈夫曼算法进行编码，将编码存到对应的编码表中。
+
+压缩文章：
+读取一篇文章，将文章中的字符替换成该字符的编码存到字符数组linecode中，当读取一定个数时进行压缩，压缩规则源代码如下：
+	unsigned char word = 0;
+	for(i=0;i<strlen(linecode);)
+	{
+		if(linecode[i]=='1') k=1;
+		else k=0;
+		word<<1; 
+		word+=k;
+		i++;
+		if(i%8==0)
+		{
+			compressCode.push(word);
+			word=0;
+		}
+	}
+通过定义一个unsigned 类型的字符变量，每来一个01符进行一次左移操作，并加上对应数值，当进行8次的时候将该压缩码入队。到文章结尾的时候可能凑不够八个01符，那么，将单独压缩，用两个变量，一个记录剩余几个01符，一个存储这些不足八个的01符，不足的用0代替。最终压缩完成整篇文章。
+将压缩文件解码：
+核心代码如下：
+			for(int i=0;i<8;i++,ch/=2)
+			{
+				word[7-i] = (ch%2==0)?'0':'1';
+			}
+对于每一个压缩符，都要通过8次取余，将每次取余的结果存储到字符串word中，这样所有的word拼装起来就是原文章的所有编码，然后从前往后遍历编码表，匹配成功则存入文件并更新下标，直到文件全部解码完毕。
