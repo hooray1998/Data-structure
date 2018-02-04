@@ -1,0 +1,72 @@
+二、迷宫问题（必做）（栈与队列），(选做)（深度搜索，广度搜索）
+1.[问题描述]
+利用栈操作实现迷宫问题求解。
+[基本要求]
+（1）从文件中读取数据，生成模拟迷宫地图，不少于10行10列。
+（2）给出任意入口和出口，显示输出迷宫路线。
+
+2.采用的数据结构
+
+
+int graph[ROW_MAX][ROW_MAX];//存储迷宫的每个单元的属性 
+class Cube{
+	public:
+	void move();//移动到方向所指定的方格 
+	int get_x(){return x;	}
+	int get_y(){return y;	}
+	int get_dir(){return nextDirection;	}
+
+	bool next();//查找下一个可以移动的方向，若无（movetime已达三次），则返回false 
+	void go()//转向下一个方向 
+	{
+		nextDirection=(++nextDirection)%4;
+		movetime++;
+	}
+	void eraser();//擦出当前方格的属性，使其变为空白 
+
+	void showGraph();//打印迷宫 
+	void print();//设置当前方格的新属性，5678分别代表 ↑→↓← 
+	void end();//判断是否结束 
+		private:
+		int x,y;
+		int nextDirection;	//存储下一个的方向 
+		int movetime; //记录移动次数 
+		
+}; 
+stack<Cube> route;//栈中存储路线中每个位置的cube（位置，方向）。 
+
+
+3.算法思想：
+
+迷宫文件内容读入到数组graph中。
+建立一个cube初始化为起点坐标，通过next函数判断周围有无通路，若有通路则将该cube入栈route，更新graph，并让cube的x，y更新为下一个位置。如果无通路，则route栈pop一次，并让temp等于该cube，并让其转向一次，因为之前的方向已经退回，所以当前方向失效。继续寻找下一个位置，并不断移动。直到栈空或到达终点。
+
+核心函数如下：
+void f()//主函数，不断寻找下一个移动目标 
+{
+	route.push(Cube(start_x,start_y));//将初始位置存入 
+	
+	int kk=0;
+	while(!route.empty())//若四处碰壁不断pop最后空栈则游戏结束 
+	{
+		Cube temp = route.top();//通路的火车头 
+		route.pop();
+		if(kk>=1)	//开始的位置因为还没判断所以无需转向 ，以后每次从队					//列里pop出的位置都要变向一次，
+//因为之前的方向已经退回，所以当前方向失效。 
+		temp.go();
+		kk++;
+		while(temp.next())//若可以移动到下一个位置 
+		{
+			route.push(temp);
+			temp.move();//移动 
+			temp.print();//修改该方格属性 
+			temp.showGraph();//展示 
+		//	Sleep(200); 
+			getch();
+			system("cls");
+			
+			temp.end();//结束判断 
+		}
+		temp.eraser(); //擦除当前无下一个通路的方格 
+	}
+ } 
