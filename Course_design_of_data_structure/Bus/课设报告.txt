@@ -1,0 +1,74 @@
+八、公交线路提示  (选做) （图）
+1.[问题描述]
+上网下载南京公交线路图，建立南京主要公交线路图的存储结构。
+[基本要求]
+（1）输入任意两站点，给出转车次数最少的乘车路线。
+（2）输入任意两站点，给经过站点最少的乘车路线。
+
+2.采用的数据结构
+第一题所用的数据结构：
+
+邻接矩阵存储公交信息，将公交车作为基本单位，建立所有公交车之间的邻接关系，若两者经过相同的公交站则二者相邻，距离设为一。将公交车经过的所有站点存在他的一个成员数组里。
+class Bus{
+	public:
+	int busFlag;//公交车号 
+	string station[MAX_STATION];//经过的所有站 
+	int staNum;//站的个数 
+	Bus(){busFlag=0;staNum=0;	}
+	bool FindStation(string s);//查询是否经过s站 
+	void InsertStation(string s);//将s站存入 
+	void busShow();
+	
+};
+class crosspoint{
+	public:
+	int CPNumber;//两条公交路线共同经过的站的个数 
+	string CPoint[20];//两条公交路线共同经过的公交站 	
+};
+typedef Bus VertexType;
+typedef char* InfoType;
+class ArcCell{
+	public: 
+	VRType adj;//存储权值，联通则为1，反之为 INITNUMBER
+	crosspoint CPt;//存储相交的公交站 
+};
+
+typedef struct{
+	VertexType vexs[MAX_BUS_NUM];//存储所有公交车的信息 
+	ArcCell arcs[MAX_BUS_NUM][MAX_BUS_NUM];//存储各个公交车与其他公交车的相邻情况 
+	int busnum;//公交车个数 
+}MGraph;
+
+
+第二题所用的数据结构：
+邻接表存储所有站点信息,如果相邻则互相邻接，并存储该邻接关系是在哪条公交路线上。
+
+typedef struct ArcNode{
+	int adjvex;//存储该邻接的站的位置 
+	int samebus;//存储该邻接关系是在哪个公交路线上 
+	struct ArcNode*nextarc;//存储下一个邻接的站 
+	int weight;//记录距离，该题相邻均为1
+}ArcNode;
+typedef struct VNode{
+	string data;//记录车站名 
+	ArcNode *firstarc;//出 
+}VNode,AdjList[MAX_VERTEX_NUM];
+
+typedef struct{
+	AdjList vertices; //存储所有车站信息 
+	int vexnum;
+}ALGraph;
+
+3.算法思想
+
+
+
+求最少换乘次数：
+
+将公交车作为基本单位，经过的车站作为其成员变量。路线有交叉则二车相邻距离为一。
+给定起点和终点，查找哪些公交车经过起点，哪些公交车经过终点，应用弗罗里达算法求这些公交车互相之间的最短距离，取最小的那一组输出。
+
+
+求最少过站次数：
+
+将公交站作为基本单位，从文件读取公交路线时，相邻的两站建立邻接关系，并记录该邻接关系在哪个公交路线上，邻接表建立完成后，从起点出发，运用DIJ算法求最短路径，当求的终点的最短路径时结束，并依次遍历这些经过的站点，从起点开始不断寻找下一个相邻的站点，并输出。
