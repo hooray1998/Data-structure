@@ -1,5 +1,7 @@
 # 数据结构
-Coding in data s* balabalabalala
+Coding in data structure
+
+* balabalabalala
 
 * duangduangduang
 > 12345
